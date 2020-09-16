@@ -38,25 +38,33 @@ const I1 = new Instructor('david','lee','aps1052')
 I1.sayName()
 
 function Model(){
-	this.todos = [
-		{id: 1, text:'Run a marathon', complete: false},
-		{id: 2, text:'Plant a garden', complete: false},
-	]
+	// this.todos = [
+	// 	{id: 1, text:'Run a marathon', complete: false},
+	// 	{id: 2, text:'Plant a garden', complete: false},
+	// ]
+	this.todos = JSON.parse(localStorage.getItem('todos')) || []
 	this.bindTodoListChanged = function (callback){
 		this.onTodoListChanged = callback
 	}
 }
+
+Model.prototype._commit = function(todos){
+	localStorage.setItem('todos', JSON.stringify(todos))
+}
+
 Model.prototype.addTodo = function(todoText){
 	const todo = {id: this.todos.length > 0 ? this.todos[this.todos.length-1].id + 1 : 1,
 		text: todoText,
 		complete: false,}
 	this.todos.push(todo)
 	this.onTodoListChanged(this.todos)
+	this._commit(this.todos)
 }
 
 Model.prototype.deleteTodo = function (id){
 	this.todos = this.todos.filter(todo => todo.id != id)
 	this.onTodoListChanged(this.todos)
+	this._commit(this.todos)
 }
 
 Model.prototype.toggleTodo = function (id){
@@ -66,6 +74,7 @@ Model.prototype.toggleTodo = function (id){
 		}
 	})
 	this.onTodoListChanged(this.todos)
+	this._commit(this.todos)
 }
 
 Model.prototype.editTodo = function(id, editText){
@@ -75,6 +84,7 @@ Model.prototype.editTodo = function(id, editText){
 		}
 	})
 	this.onTodoListChanged(this.todos)
+	this._commit(this.todos)
 }
 function View(){
 	// The root element
@@ -247,6 +257,6 @@ function Controller(model, view){
 let model = new Model()
 let view = new View()
 let app = new Controller(model, view)
-app.model.addTodo('take a nap')
+// app.model.addTodo('take a nap')
 log(app.model.todos)
 // app.view.displayTodos(app.model.todos)
